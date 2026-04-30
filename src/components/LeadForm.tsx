@@ -26,7 +26,7 @@ const STATUSES: { value: LeadStatus; label: string; color: string; ring: string 
 
 interface Props {
   lead?: Lead;
-  action: (formData: FormData) => Promise<void>;
+  action: (formData: FormData) => Promise<{ error: string } | undefined>;
   submitLabel: string;
 }
 
@@ -38,14 +38,19 @@ const input =
 const label = 'mb-1.5 block text-sm font-medium text-gray-700';
 
 export default function LeadForm({ lead, action, submitLabel }: Props) {
-  const [status, setStatus]     = useState<LeadStatus>(lead?.status ?? 'new');
-  const [isPending, startTx]    = useTransition();
-  const formRef                 = useRef<HTMLFormElement>(null);
+  const [status, setStatus]         = useState<LeadStatus>(lead?.status ?? 'new');
+  const [serverError, setServerError] = useState<string | null>(null);
+  const [isPending, startTx]          = useTransition();
+  const formRef                       = useRef<HTMLFormElement>(null);
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    setServerError(null);
     const fd = new FormData(e.currentTarget);
-    startTx(async () => { await action(fd); });
+    startTx(async () => {
+      const result = await action(fd);
+      if (result?.error) setServerError(result.error);
+    });
   }
 
   return (
@@ -147,6 +152,13 @@ export default function LeadForm({ lead, action, submitLabel }: Props) {
           className={`${input} resize-none`}
         />
       </div>
+
+      {/* Erro do servidor */}
+      {serverError && (
+        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          <strong className="font-semibold">Erro: </strong>{serverError}
+        </div>
+      )}
 
       {/* Rodapé */}
       <div className="flex items-center justify-end gap-3 border-t border-gray-100 pt-4">
