@@ -1,35 +1,34 @@
+// Schema real da tabela leads no Supabase
+// Colunas: id, nome, empresa, contato, status, notas, created_at
 export type Database = {
   public: {
     Tables: {
       leads: {
         Row: {
           id: string;
-          name: string;
-          email: string;
-          phone: string;
-          company: string;
+          nome: string;
+          empresa: string;
+          contato: string;
           status: string;
-          notes: string;
+          notas: string;
           created_at: string;
         };
         Insert: {
           id?: string;
-          name: string;
-          email: string;
-          phone?: string | null;
-          company?: string | null;
+          nome: string;
+          empresa?: string | null;
+          contato?: string | null;
           status?: string | null;
-          notes?: string | null;
+          notas?: string | null;
           created_at?: string | null;
         };
         Update: {
           id?: string;
-          name?: string | null;
-          email?: string | null;
-          phone?: string | null;
-          company?: string | null;
+          nome?: string | null;
+          empresa?: string | null;
+          contato?: string | null;
           status?: string | null;
-          notes?: string | null;
+          notas?: string | null;
           created_at?: string | null;
         };
         Relationships: [];

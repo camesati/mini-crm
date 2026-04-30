@@ -17,7 +17,7 @@ const AVATAR_PALETTE = [
 ];
 
 function initials(name: string) {
-  return name
+  return (name || '?')
     .split(' ')
     .slice(0, 2)
     .map((w) => w[0])
@@ -26,7 +26,7 @@ function initials(name: string) {
 }
 
 function avatarClass(id: string) {
-  const n = id.charCodeAt(0) + id.charCodeAt(id.length - 1);
+  const n = (id.charCodeAt(0) ?? 0) + (id.charCodeAt(id.length - 1) ?? 0);
   return AVATAR_PALETTE[n % AVATAR_PALETTE.length];
 }
 
@@ -38,12 +38,9 @@ export default function LeadTable({ leads }: { leads: Lead[] }) {
   const filtered = useMemo(() => {
     const q = search.toLowerCase();
     if (!q) return leads;
-    return leads.filter(
-      (l) =>
-        l.name.toLowerCase().includes(q) ||
-        l.email.toLowerCase().includes(q) ||
-        l.company.toLowerCase().includes(q) ||
-        l.phone.toLowerCase().includes(q),
+    return leads.filter((l) =>
+      [l.name, l.company, l.phone]
+        .some((v) => (v ?? '').toLowerCase().includes(q)),
     );
   }, [leads, search]);
 
@@ -88,7 +85,7 @@ export default function LeadTable({ leads }: { leads: Lead[] }) {
           </svg>
           <input
             type="search"
-            placeholder="Buscar por nome, empresa, contato..."
+            placeholder="Buscar por nome, empresa ou contato..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full rounded-md border border-gray-200 py-1.5 pl-9 pr-3 text-sm
@@ -101,7 +98,6 @@ export default function LeadTable({ leads }: { leads: Lead[] }) {
         </span>
       </div>
 
-      {/* Estado vazio — sem nenhum lead ainda */}
       {leads.length === 0 && (
         <div className="py-20 text-center">
           <p className="text-sm font-medium text-gray-500">Nenhum lead cadastrado ainda.</p>
@@ -114,14 +110,12 @@ export default function LeadTable({ leads }: { leads: Lead[] }) {
         </div>
       )}
 
-      {/* Estado vazio — busca sem resultado */}
       {leads.length > 0 && filtered.length === 0 && (
         <div className="py-16 text-center text-sm text-gray-500">
           Nenhum resultado para <strong>&ldquo;{search}&rdquo;</strong>
         </div>
       )}
 
-      {/* Tabela */}
       {filtered.length > 0 && (
         <div className="overflow-x-auto">
           <table className="min-w-full text-sm">
@@ -147,8 +141,6 @@ export default function LeadTable({ leads }: { leads: Lead[] }) {
             <tbody className="divide-y divide-gray-50">
               {sorted.map((lead) => (
                 <tr key={lead.id} className="group transition-colors hover:bg-indigo-50/40">
-
-                  {/* Nome + email (com avatar) */}
                   <td className="px-4 py-3.5">
                     <div className="flex items-center gap-3">
                       <span
@@ -157,34 +149,21 @@ export default function LeadTable({ leads }: { leads: Lead[] }) {
                       >
                         {initials(lead.name)}
                       </span>
-                      <div className="min-w-0">
-                        <p className="truncate font-medium text-gray-900">{lead.name}</p>
-                        <p className="truncate text-xs text-gray-400">{lead.email}</p>
-                      </div>
+                      <p className="truncate font-medium text-gray-900">{lead.name}</p>
                     </div>
                   </td>
-
-                  {/* Empresa */}
                   <td className="hidden px-4 py-3.5 text-gray-600 sm:table-cell">
                     {lead.company || <span className="text-gray-300">—</span>}
                   </td>
-
-                  {/* Contato (telefone preferencial, fallback —) */}
                   <td className="hidden px-4 py-3.5 text-gray-600 md:table-cell">
                     {lead.phone || <span className="text-gray-300">—</span>}
                   </td>
-
-                  {/* Status */}
                   <td className="px-4 py-3.5">
                     <StatusBadge status={lead.status} />
                   </td>
-
-                  {/* Data */}
                   <td className="hidden px-4 py-3.5 text-xs text-gray-400 lg:table-cell">
                     {new Date(lead.createdAt).toLocaleDateString('pt-BR')}
                   </td>
-
-                  {/* Ação (visível no hover) */}
                   <td className="px-4 py-3.5 text-right">
                     <Link
                       href={`/leads/${lead.id}`}

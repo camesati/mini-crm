@@ -2,12 +2,11 @@ export type LeadStatus = 'novo' | 'em_contato' | 'fechado';
 
 export interface Lead {
   id: string;
-  name: string;
-  email: string;
-  phone: string;
-  company: string;
+  name: string;    // → nome
+  company: string; // → empresa
+  phone: string;   // → contato
   status: LeadStatus;
-  notes: string;
+  notes: string;   // → notas
   createdAt: string;
 }
 

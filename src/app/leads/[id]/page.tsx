@@ -15,7 +15,7 @@ export default async function LeadDetailPage({ params, searchParams }: Props) {
   const lead = await getLeadById(params.id);
   if (!lead) notFound();
 
-  const isEditing = searchParams.edit === '1';
+  const isEditing   = searchParams.edit === '1';
   const boundUpdate = updateLeadAction.bind(null, lead.id);
   const boundDelete = deleteLeadAction.bind(null, lead.id);
 
@@ -32,9 +32,7 @@ export default async function LeadDetailPage({ params, searchParams }: Props) {
         <p className="mt-1 text-sm text-gray-500">
           Criado em{' '}
           {new Date(lead.createdAt).toLocaleDateString('pt-BR', {
-            day: '2-digit',
-            month: 'long',
-            year: 'numeric',
+            day: '2-digit', month: 'long', year: 'numeric',
           })}
         </p>
       </div>
@@ -60,13 +58,12 @@ export default async function LeadDetailPage({ params, searchParams }: Props) {
             <dl className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               {(
                 [
-                  ['Email', lead.email],
-                  ['Telefone', lead.phone || '—'],
+                  ['Contato', lead.phone  || '—'],
                   ['Empresa', lead.company || '—'],
-                  ['Status', <StatusBadge key="s" status={lead.status} />],
+                  ['Status',  <StatusBadge key="s" status={lead.status} />],
                 ] as [string, React.ReactNode][]
               ).map(([label, value]) => (
-                <div key={label}>
+                <div key={label as string}>
                   <dt className="text-xs font-semibold uppercase tracking-wide text-gray-500">
                     {label}
                   </dt>
@@ -87,7 +84,8 @@ export default async function LeadDetailPage({ params, searchParams }: Props) {
             <div className="mt-6 flex items-center gap-3 border-t border-gray-100 pt-4">
               <Link
                 href={`/leads/${lead.id}?edit=1`}
-                className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
+                className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium
+                           text-white hover:bg-indigo-700"
               >
                 Editar Lead
               </Link>

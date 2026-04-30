@@ -5,15 +5,15 @@ import type { Database } from './database.types';
 
 type DbRow = Database['public']['Tables']['leads']['Row'];
 
+// Mapeia colunas PT do banco para o modelo TS da aplicação
 function toModel(row: DbRow): Lead {
   return {
-    id: row.id,
-    name: row.name,
-    email: row.email,
-    phone: row.phone,
-    company: row.company,
-    status: row.status as Lead['status'],
-    notes: row.notes,
+    id:        row.id,
+    name:      row.nome    ?? '',
+    company:   row.empresa ?? '',
+    phone:     row.contato ?? '',
+    status:    (row.status as Lead['status']) ?? 'novo',
+    notes:     row.notas   ?? '',
     createdAt: row.created_at,
   };
 }
@@ -25,7 +25,7 @@ export async function readLeads(): Promise<Lead[]> {
     .order('created_at', { ascending: false });
 
   if (error) throw new Error(error.message);
-  return data.map(toModel);
+  return (data ?? []).map(toModel);
 }
 
 export async function getLeadById(id: string): Promise<Lead | null> {
@@ -46,12 +46,11 @@ export async function createLead(input: LeadInput): Promise<Lead> {
   const { data, error } = await getSupabase()
     .from('leads')
     .insert({
-      name: input.name,
-      email: input.email,
-      phone: input.phone,
-      company: input.company,
-      status: input.status,
-      notes: input.notes,
+      nome:    input.name,
+      empresa: input.company,
+      contato: input.phone,
+      status:  input.status,
+      notas:   input.notes,
     })
     .select()
     .single();
@@ -64,12 +63,11 @@ export async function updateLead(id: string, input: Partial<LeadInput>): Promise
   const { data, error } = await getSupabase()
     .from('leads')
     .update({
-      name: input.name,
-      email: input.email,
-      phone: input.phone,
-      company: input.company,
-      status: input.status,
-      notes: input.notes,
+      nome:    input.name,
+      empresa: input.company,
+      contato: input.phone,
+      status:  input.status,
+      notas:   input.notes,
     })
     .eq('id', id)
     .select()
