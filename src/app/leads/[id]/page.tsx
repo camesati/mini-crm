@@ -5,6 +5,7 @@ import { updateLeadAction, deleteLeadAction } from '@/lib/actions';
 import LeadForm from '@/components/LeadForm';
 import StatusBadge from '@/components/StatusBadge';
 import ConfirmDialog from '@/components/ConfirmDialog';
+import { formatPhone } from '@/lib/utils';
 
 interface Props {
   params: { id: string };
@@ -58,7 +59,7 @@ export default async function LeadDetailPage({ params, searchParams }: Props) {
             <dl className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               {(
                 [
-                  ['Contato', lead.phone  || '—'],
+                  ['Telefone', lead.phone ? formatPhone(lead.phone) : '—'],
                   ['E-mail',  lead.email  || '—'],
                   ['Empresa', lead.company || '—'],
                   ['Status',  <StatusBadge key="s" status={lead.status} />],

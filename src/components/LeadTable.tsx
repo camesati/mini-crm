@@ -4,6 +4,7 @@ import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { Lead } from '@/lib/types';
 import StatusBadge from './StatusBadge';
+import { formatPhone } from '@/lib/utils';
 
 type SortKey = keyof Pick<Lead, 'name' | 'company' | 'status' | 'createdAt'>;
 
@@ -127,7 +128,7 @@ export default function LeadTable({ leads }: { leads: Lead[] }) {
                 <th className={`${th} hidden sm:table-cell`} onClick={() => toggle('company')}>
                   Empresa <Arrow k="company" />
                 </th>
-                <th className={`${th} hidden md:table-cell`}>Contato</th>
+                <th className={`${th} hidden md:table-cell`}>Telefone</th>
                 <th className={`${th} hidden lg:table-cell`}>E-mail</th>
                 <th className={th} onClick={() => toggle('status')}>
                   Status <Arrow k="status" />
@@ -157,7 +158,7 @@ export default function LeadTable({ leads }: { leads: Lead[] }) {
                     {lead.company || <span className="text-gray-300">—</span>}
                   </td>
                   <td className="hidden px-4 py-3.5 text-gray-600 md:table-cell">
-                    {lead.phone || <span className="text-gray-300">—</span>}
+                    {lead.phone ? formatPhone(lead.phone) : <span className="text-gray-300">—</span>}
                   </td>
                   <td className="hidden px-4 py-3.5 text-gray-600 lg:table-cell">
                     {lead.email || <span className="text-gray-300">—</span>}

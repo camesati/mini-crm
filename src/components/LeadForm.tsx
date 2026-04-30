@@ -2,6 +2,7 @@
 
 import { useRef, useState, useTransition } from 'react';
 import { Lead, LeadStatus } from '@/lib/types';
+import { formatPhone } from '@/lib/utils';
 
 const STATUSES: { value: LeadStatus; label: string }[] = [
   { value: 'novo',       label: 'Novo'       },
@@ -24,6 +25,7 @@ const labelClass = 'mb-1.5 block text-sm font-medium text-gray-700';
 
 export default function LeadForm({ lead, action, submitLabel }: Props) {
   const [serverError, setServerError] = useState<string | null>(null);
+  const [phone, setPhone]             = useState(formatPhone(lead?.phone ?? ''));
   const [isPending, startTx]          = useTransition();
   const formRef                       = useRef<HTMLFormElement>(null);
 
@@ -67,11 +69,12 @@ export default function LeadForm({ lead, action, submitLabel }: Props) {
       {/* Contato + Email */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
-          <label className={labelClass}>Contato</label>
+          <label className={labelClass}>Telefone</label>
           <input
-            name="phone" type="text"
-            defaultValue={lead?.phone}
-            placeholder="Telefone ou WhatsApp"
+            name="phone" type="tel"
+            value={phone}
+            onChange={(e) => setPhone(formatPhone(e.target.value))}
+            placeholder="(XX) XXXXX-XXXX"
             className={inputClass}
           />
         </div>
