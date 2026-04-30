@@ -39,7 +39,7 @@ export default function LeadTable({ leads }: { leads: Lead[] }) {
     const q = search.toLowerCase();
     if (!q) return leads;
     return leads.filter((l) =>
-      [l.name, l.company, l.phone]
+      [l.name, l.company, l.phone, l.email]
         .some((v) => (v ?? '').toLowerCase().includes(q)),
     );
   }, [leads, search]);
@@ -85,7 +85,7 @@ export default function LeadTable({ leads }: { leads: Lead[] }) {
           </svg>
           <input
             type="search"
-            placeholder="Buscar por nome, empresa ou contato..."
+            placeholder="Buscar por nome, empresa, contato ou e-mail..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full rounded-md border border-gray-200 py-1.5 pl-9 pr-3 text-sm
@@ -128,6 +128,7 @@ export default function LeadTable({ leads }: { leads: Lead[] }) {
                   Empresa <Arrow k="company" />
                 </th>
                 <th className={`${th} hidden md:table-cell`}>Contato</th>
+                <th className={`${th} hidden lg:table-cell`}>E-mail</th>
                 <th className={th} onClick={() => toggle('status')}>
                   Status <Arrow k="status" />
                 </th>
@@ -157,6 +158,9 @@ export default function LeadTable({ leads }: { leads: Lead[] }) {
                   </td>
                   <td className="hidden px-4 py-3.5 text-gray-600 md:table-cell">
                     {lead.phone || <span className="text-gray-300">—</span>}
+                  </td>
+                  <td className="hidden px-4 py-3.5 text-gray-600 lg:table-cell">
+                    {lead.email || <span className="text-gray-300">—</span>}
                   </td>
                   <td className="px-4 py-3.5">
                     <StatusBadge status={lead.status} />
