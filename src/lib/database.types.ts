@@ -1,5 +1,5 @@
 // Schema real da tabela leads no Supabase
-// Colunas: id, nome, empresa, contato, status, notas, created_at
+// Colunas: id, nome, empresa, contato, email, status, notas, created_at
 export type Database = {
   public: {
     Tables: {
@@ -9,6 +9,7 @@ export type Database = {
           nome: string;
           empresa: string;
           contato: string;
+          email: string;
           status: string;
           notas: string;
           created_at: string;
@@ -18,6 +19,7 @@ export type Database = {
           nome: string;
           empresa?: string | null;
           contato?: string | null;
+          email?: string | null;
           status?: string | null;
           notas?: string | null;
           created_at?: string | null;
@@ -27,6 +29,7 @@ export type Database = {
           nome?: string | null;
           empresa?: string | null;
           contato?: string | null;
+          email?: string | null;
           status?: string | null;
           notas?: string | null;
           created_at?: string | null;

@@ -5,6 +5,7 @@ export interface Lead {
   name: string;    // → nome
   company: string; // → empresa
   phone: string;   // → contato
+  email: string;   // → email
   status: LeadStatus;
   notes: string;   // → notas
   createdAt: string;

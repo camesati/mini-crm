@@ -5,13 +5,13 @@ import type { Database } from './database.types';
 
 type DbRow = Database['public']['Tables']['leads']['Row'];
 
-// Mapeia colunas PT do banco para o modelo TS da aplicação
 function toModel(row: DbRow): Lead {
   return {
     id:        row.id,
     name:      row.nome    ?? '',
     company:   row.empresa ?? '',
     phone:     row.contato ?? '',
+    email:     row.email   ?? '',
     status:    (row.status as Lead['status']) ?? 'novo',
     notes:     row.notas   ?? '',
     createdAt: row.created_at,
@@ -49,6 +49,7 @@ export async function createLead(input: LeadInput): Promise<Lead> {
       nome:    input.name,
       empresa: input.company,
       contato: input.phone,
+      email:   input.email,
       status:  input.status,
       notas:   input.notes,
     })
@@ -66,6 +67,7 @@ export async function updateLead(id: string, input: Partial<LeadInput>): Promise
       nome:    input.name,
       empresa: input.company,
       contato: input.phone,
+      email:   input.email,
       status:  input.status,
       notas:   input.notes,
     })

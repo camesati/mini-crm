@@ -59,6 +59,7 @@ export default async function LeadDetailPage({ params, searchParams }: Props) {
               {(
                 [
                   ['Contato', lead.phone  || '—'],
+                  ['E-mail',  lead.email  || '—'],
                   ['Empresa', lead.company || '—'],
                   ['Status',  <StatusBadge key="s" status={lead.status} />],
                 ] as [string, React.ReactNode][]

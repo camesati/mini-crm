@@ -64,15 +64,26 @@ export default function LeadForm({ lead, action, submitLabel }: Props) {
         </div>
       </div>
 
-      {/* Contato */}
-      <div>
-        <label className={labelClass}>Contato</label>
-        <input
-          name="phone" type="text"
-          defaultValue={lead?.phone}
-          placeholder="Telefone, e-mail ou WhatsApp"
-          className={inputClass}
-        />
+      {/* Contato + Email */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div>
+          <label className={labelClass}>Contato</label>
+          <input
+            name="phone" type="text"
+            defaultValue={lead?.phone}
+            placeholder="Telefone ou WhatsApp"
+            className={inputClass}
+          />
+        </div>
+        <div>
+          <label className={labelClass}>E-mail</label>
+          <input
+            name="email" type="email"
+            defaultValue={lead?.email}
+            placeholder="joao@empresa.com"
+            className={inputClass}
+          />
+        </div>
       </div>
 
       {/* Status */}

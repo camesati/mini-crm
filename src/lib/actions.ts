@@ -10,8 +10,9 @@ export type ActionResult = { error: string } | undefined;
 function extractInput(formData: FormData): LeadInput {
   return {
     name:    formData.get('name')    as string,
-    phone:  (formData.get('phone')   as string) ?? '',
     company:(formData.get('company') as string) ?? '',
+    phone:  (formData.get('phone')   as string) ?? '',
+    email:  (formData.get('email')   as string) ?? '',
     status:  formData.get('status')  as LeadInput['status'],
     notes:  (formData.get('notes')   as string) ?? '',
   };
