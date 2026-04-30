@@ -3,25 +3,10 @@
 import { useRef, useState, useTransition } from 'react';
 import { Lead, LeadStatus } from '@/lib/types';
 
-const STATUSES: { value: LeadStatus; label: string; color: string; ring: string }[] = [
-  {
-    value: 'new',
-    label: 'Novo',
-    color: 'border-blue-300  bg-blue-50  text-blue-800  data-[checked]:bg-blue-100  data-[checked]:border-blue-500',
-    ring:  'data-[checked]:ring-2 data-[checked]:ring-blue-400',
-  },
-  {
-    value: 'contacted',
-    label: 'Em contato',
-    color: 'border-amber-300 bg-amber-50 text-amber-800 data-[checked]:bg-amber-100 data-[checked]:border-amber-500',
-    ring:  'data-[checked]:ring-2 data-[checked]:ring-amber-400',
-  },
-  {
-    value: 'closed',
-    label: 'Fechado',
-    color: 'border-green-300 bg-green-50 text-green-800 data-[checked]:bg-green-100 data-[checked]:border-green-500',
-    ring:  'data-[checked]:ring-2 data-[checked]:ring-green-400',
-  },
+const STATUSES: { value: LeadStatus; label: string }[] = [
+  { value: 'novo',       label: 'Novo'       },
+  { value: 'em_contato', label: 'Em contato' },
+  { value: 'fechado',    label: 'Fechado'    },
 ];
 
 interface Props {
@@ -30,15 +15,14 @@ interface Props {
   submitLabel: string;
 }
 
-const input =
+const inputClass =
   'block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 ' +
   'placeholder-gray-400 shadow-sm transition focus:border-indigo-500 focus:outline-none ' +
   'focus:ring-2 focus:ring-indigo-500/20';
 
-const label = 'mb-1.5 block text-sm font-medium text-gray-700';
+const labelClass = 'mb-1.5 block text-sm font-medium text-gray-700';
 
 export default function LeadForm({ lead, action, submitLabel }: Props) {
-  const [status, setStatus]         = useState<LeadStatus>(lead?.status ?? 'new');
   const [serverError, setServerError] = useState<string | null>(null);
   const [isPending, startTx]          = useTransition();
   const formRef                       = useRef<HTMLFormElement>(null);
@@ -54,102 +38,84 @@ export default function LeadForm({ lead, action, submitLabel }: Props) {
   }
 
   return (
-    <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
+    <form ref={formRef} onSubmit={handleSubmit} className="space-y-5">
 
-      {/* Linha 1 — Nome + Empresa */}
+      {/* Nome + Empresa */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
-          <label className={label}>
+          <label className={labelClass}>
             Nome <span className="text-red-500">*</span>
           </label>
           <input
             name="name" type="text" required autoFocus
             defaultValue={lead?.name}
             placeholder="Ex: João Silva"
-            className={input}
+            className={inputClass}
           />
         </div>
         <div>
-          <label className={label}>Empresa</label>
+          <label className={labelClass}>Empresa</label>
           <input
             name="company" type="text"
             defaultValue={lead?.company}
             placeholder="Ex: Camesa S.A."
-            className={input}
+            className={inputClass}
           />
         </div>
       </div>
 
-      {/* Linha 2 — Contato (email + telefone) */}
+      {/* Contato */}
       <fieldset>
         <legend className="mb-2 text-sm font-semibold text-gray-700">Contato</legend>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
-            <label className={label}>
+            <label className={labelClass}>
               E-mail <span className="text-red-500">*</span>
             </label>
             <input
               name="email" type="email" required
               defaultValue={lead?.email}
               placeholder="joao@empresa.com"
-              className={input}
+              className={inputClass}
             />
           </div>
           <div>
-            <label className={label}>Telefone</label>
+            <label className={labelClass}>Telefone</label>
             <input
               name="phone" type="tel"
               defaultValue={lead?.phone}
               placeholder="(11) 99999-9999"
-              className={input}
+              className={inputClass}
             />
           </div>
         </div>
       </fieldset>
 
-      {/* Status — radio cards */}
+      {/* Status */}
       <div>
-        <span className={label}>
+        <label className={labelClass}>
           Status <span className="text-red-500">*</span>
-        </span>
-        <div className="mt-1.5 flex flex-wrap gap-2">
-          {STATUSES.map((s) => {
-            const checked = status === s.value;
-            return (
-              <label
-                key={s.value}
-                data-checked={checked ? '' : undefined}
-                className={`flex cursor-pointer items-center gap-2 rounded-full border px-4 py-1.5
-                            text-sm font-medium transition-all select-none
-                            ${s.color} ${s.ring}`}
-              >
-                <input
-                  type="radio" name="status" value={s.value}
-                  checked={checked}
-                  onChange={() => setStatus(s.value)}
-                  className="sr-only"
-                />
-                {/* dot */}
-                <span
-                  className={`h-2 w-2 rounded-full transition-colors ${
-                    checked ? 'bg-current' : 'bg-gray-300'
-                  }`}
-                />
-                {s.label}
-              </label>
-            );
-          })}
-        </div>
+        </label>
+        <select
+          name="status"
+          required
+          defaultValue={lead?.status ?? 'novo'}
+          className={inputClass}
+        >
+          {STATUSES.map(({ value, label }) => (
+            <option key={value} value={value}>{label}</option>
+          ))}
+        </select>
       </div>
 
       {/* Notas */}
       <div>
-        <label className={label}>Notas</label>
+        <label className={labelClass}>Notas</label>
         <textarea
           name="notes" rows={4}
           defaultValue={lead?.notes}
           placeholder="Observações sobre este lead..."
-          className={`${input} resize-none`}
+          className={`${inputClass} resize-none`}
         />
       </div>
 
@@ -161,7 +127,7 @@ export default function LeadForm({ lead, action, submitLabel }: Props) {
       )}
 
       {/* Rodapé */}
-      <div className="flex items-center justify-end gap-3 border-t border-gray-100 pt-4">
+      <div className="flex justify-end border-t border-gray-100 pt-4">
         <button
           type="submit"
           disabled={isPending}

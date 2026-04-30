@@ -25,9 +25,9 @@ export default async function LeadsPage() {
   const leads = await readLeads();
 
   const total     = leads.length;
-  const novos     = leads.filter((l) => l.status === 'new').length;
-  const emContato = leads.filter((l) => l.status === 'contacted').length;
-  const fechados  = leads.filter((l) => l.status === 'closed').length;
+  const novos     = leads.filter((l) => l.status === 'novo').length;
+  const emContato = leads.filter((l) => l.status === 'em_contato').length;
+  const fechados  = leads.filter((l) => l.status === 'fechado').length;
 
   return (
     <div>
