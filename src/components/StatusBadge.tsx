@@ -1,29 +1,16 @@
 import { LeadStatus } from '@/lib/types';
 
-const COLORS: Record<LeadStatus, string> = {
-  new:       'bg-blue-100 text-blue-800',
-  contacted: 'bg-yellow-100 text-yellow-800',
-  qualified: 'bg-purple-100 text-purple-800',
-  proposal:  'bg-orange-100 text-orange-800',
-  won:       'bg-green-100 text-green-800',
-  lost:      'bg-red-100 text-red-800',
-};
-
-const LABELS: Record<LeadStatus, string> = {
-  new:       'Novo',
-  contacted: 'Contactado',
-  qualified: 'Qualificado',
-  proposal:  'Proposta',
-  won:       'Ganho',
-  lost:      'Perdido',
+const STYLES: Record<LeadStatus, { bg: string; label: string }> = {
+  new:       { bg: 'bg-blue-100   text-blue-800',  label: 'Novo'       },
+  contacted: { bg: 'bg-amber-100  text-amber-800', label: 'Em contato' },
+  closed:    { bg: 'bg-green-100  text-green-800', label: 'Fechado'    },
 };
 
 export default function StatusBadge({ status }: { status: LeadStatus }) {
+  const { bg, label } = STYLES[status] ?? STYLES.new;
   return (
-    <span
-      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${COLORS[status]}`}
-    >
-      {LABELS[status]}
+    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${bg}`}>
+      {label}
     </span>
   );
 }

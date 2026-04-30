@@ -26,10 +26,8 @@ export default async function LeadsPage() {
 
   const total     = leads.length;
   const novos     = leads.filter((l) => l.status === 'new').length;
-  const ativos    = leads.filter((l) =>
-    ['contacted', 'qualified', 'proposal'].includes(l.status)
-  ).length;
-  const ganhos    = leads.filter((l) => l.status === 'won').length;
+  const emContato = leads.filter((l) => l.status === 'contacted').length;
+  const fechados  = leads.filter((l) => l.status === 'closed').length;
 
   return (
     <div>
@@ -52,10 +50,10 @@ export default async function LeadsPage() {
 
       {/* Cards de resumo */}
       <div className="mb-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
-        <StatCard label="Total"        value={total}  valueClass="text-gray-900"   />
-        <StatCard label="Novos"        value={novos}  valueClass="text-blue-600"   />
-        <StatCard label="Em andamento" value={ativos} valueClass="text-purple-600" />
-        <StatCard label="Ganhos"       value={ganhos} valueClass="text-green-600"  />
+        <StatCard label="Total"      value={total}     valueClass="text-gray-900"   />
+        <StatCard label="Novos"      value={novos}     valueClass="text-blue-600"   />
+        <StatCard label="Em contato" value={emContato} valueClass="text-amber-600"  />
+        <StatCard label="Fechados"   value={fechados}  valueClass="text-green-600"  />
       </div>
 
       {/* Tabela */}

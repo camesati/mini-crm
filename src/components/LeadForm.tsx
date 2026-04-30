@@ -1,15 +1,27 @@
 'use client';
 
-import { useRef, useTransition } from 'react';
+import { useRef, useState, useTransition } from 'react';
 import { Lead, LeadStatus } from '@/lib/types';
 
-const STATUSES: { value: LeadStatus; label: string }[] = [
-  { value: 'new',       label: 'Novo' },
-  { value: 'contacted', label: 'Contactado' },
-  { value: 'qualified', label: 'Qualificado' },
-  { value: 'proposal',  label: 'Proposta' },
-  { value: 'won',       label: 'Ganho' },
-  { value: 'lost',      label: 'Perdido' },
+const STATUSES: { value: LeadStatus; label: string; color: string; ring: string }[] = [
+  {
+    value: 'new',
+    label: 'Novo',
+    color: 'border-blue-300  bg-blue-50  text-blue-800  data-[checked]:bg-blue-100  data-[checked]:border-blue-500',
+    ring:  'data-[checked]:ring-2 data-[checked]:ring-blue-400',
+  },
+  {
+    value: 'contacted',
+    label: 'Em contato',
+    color: 'border-amber-300 bg-amber-50 text-amber-800 data-[checked]:bg-amber-100 data-[checked]:border-amber-500',
+    ring:  'data-[checked]:ring-2 data-[checked]:ring-amber-400',
+  },
+  {
+    value: 'closed',
+    label: 'Fechado',
+    color: 'border-green-300 bg-green-50 text-green-800 data-[checked]:bg-green-100 data-[checked]:border-green-500',
+    ring:  'data-[checked]:ring-2 data-[checked]:ring-green-400',
+  },
 ];
 
 interface Props {
@@ -18,91 +30,145 @@ interface Props {
   submitLabel: string;
 }
 
+const input =
+  'block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 ' +
+  'placeholder-gray-400 shadow-sm transition focus:border-indigo-500 focus:outline-none ' +
+  'focus:ring-2 focus:ring-indigo-500/20';
+
+const label = 'mb-1.5 block text-sm font-medium text-gray-700';
+
 export default function LeadForm({ lead, action, submitLabel }: Props) {
-  const [isPending, startTransition] = useTransition();
-  const formRef = useRef<HTMLFormElement>(null);
+  const [status, setStatus]     = useState<LeadStatus>(lead?.status ?? 'new');
+  const [isPending, startTx]    = useTransition();
+  const formRef                 = useRef<HTMLFormElement>(null);
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    startTransition(async () => {
-      await action(formData);
-    });
+    const fd = new FormData(e.currentTarget);
+    startTx(async () => { await action(fd); });
   }
 
-  const fieldClass =
-    'block w-full rounded-md border border-gray-300 px-3 py-2 text-sm ' +
-    'shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500';
-
   return (
-    <form ref={formRef} onSubmit={handleSubmit} className="space-y-5">
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+    <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
+
+      {/* Linha 1 — Nome + Empresa */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">
+          <label className={label}>
             Nome <span className="text-red-500">*</span>
           </label>
           <input
-            name="name" type="text" required
+            name="name" type="text" required autoFocus
             defaultValue={lead?.name}
-            className={fieldClass}
+            placeholder="Ex: João Silva"
+            className={input}
           />
         </div>
         <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">
-            Email <span className="text-red-500">*</span>
-          </label>
-          <input
-            name="email" type="email" required
-            defaultValue={lead?.email}
-            className={fieldClass}
-          />
-        </div>
-        <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">Telefone</label>
-          <input
-            name="phone" type="tel"
-            defaultValue={lead?.phone}
-            className={fieldClass}
-          />
-        </div>
-        <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">Empresa</label>
+          <label className={label}>Empresa</label>
           <input
             name="company" type="text"
             defaultValue={lead?.company}
-            className={fieldClass}
+            placeholder="Ex: Camesa S.A."
+            className={input}
           />
-        </div>
-        <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">
-            Status <span className="text-red-500">*</span>
-          </label>
-          <select name="status" required defaultValue={lead?.status ?? 'new'} className={fieldClass}>
-            {STATUSES.map(({ value, label }) => (
-              <option key={value} value={value}>{label}</option>
-            ))}
-          </select>
         </div>
       </div>
 
+      {/* Linha 2 — Contato (email + telefone) */}
+      <fieldset>
+        <legend className="mb-2 text-sm font-semibold text-gray-700">Contato</legend>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div>
+            <label className={label}>
+              E-mail <span className="text-red-500">*</span>
+            </label>
+            <input
+              name="email" type="email" required
+              defaultValue={lead?.email}
+              placeholder="joao@empresa.com"
+              className={input}
+            />
+          </div>
+          <div>
+            <label className={label}>Telefone</label>
+            <input
+              name="phone" type="tel"
+              defaultValue={lead?.phone}
+              placeholder="(11) 99999-9999"
+              className={input}
+            />
+          </div>
+        </div>
+      </fieldset>
+
+      {/* Status — radio cards */}
       <div>
-        <label className="mb-1 block text-sm font-medium text-gray-700">Notas</label>
+        <span className={label}>
+          Status <span className="text-red-500">*</span>
+        </span>
+        <div className="mt-1.5 flex flex-wrap gap-2">
+          {STATUSES.map((s) => {
+            const checked = status === s.value;
+            return (
+              <label
+                key={s.value}
+                data-checked={checked ? '' : undefined}
+                className={`flex cursor-pointer items-center gap-2 rounded-full border px-4 py-1.5
+                            text-sm font-medium transition-all select-none
+                            ${s.color} ${s.ring}`}
+              >
+                <input
+                  type="radio" name="status" value={s.value}
+                  checked={checked}
+                  onChange={() => setStatus(s.value)}
+                  className="sr-only"
+                />
+                {/* dot */}
+                <span
+                  className={`h-2 w-2 rounded-full transition-colors ${
+                    checked ? 'bg-current' : 'bg-gray-300'
+                  }`}
+                />
+                {s.label}
+              </label>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Notas */}
+      <div>
+        <label className={label}>Notas</label>
         <textarea
           name="notes" rows={4}
           defaultValue={lead?.notes}
-          className={fieldClass}
+          placeholder="Observações sobre este lead..."
+          className={`${input} resize-none`}
         />
       </div>
 
-      <div className="flex justify-end">
+      {/* Rodapé */}
+      <div className="flex items-center justify-end gap-3 border-t border-gray-100 pt-4">
         <button
           type="submit"
           disabled={isPending}
-          className="rounded-md bg-indigo-600 px-5 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-60"
+          className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-5 py-2
+                     text-sm font-medium text-white shadow-sm transition-colors
+                     hover:bg-indigo-700 disabled:opacity-60"
         >
+          {isPending && (
+            <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10"
+                stroke="currentColor" strokeWidth="4" />
+              <path className="opacity-75" fill="currentColor"
+                d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+            </svg>
+          )}
           {isPending ? 'Salvando...' : submitLabel}
         </button>
       </div>
+
     </form>
   );
 }
