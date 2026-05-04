@@ -1,36 +1,180 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Mini CRM — Camesa
 
-## Getting Started
+Aplicação web para cadastrar e acompanhar leads comerciais.
+Projeto educacional do curso Vibe Coding — pratica o ciclo completo com Claude Code, Next.js, Supabase e Vercel.
 
-First, run the development server:
+---
+
+## Visão geral
+
+Interface simples de CRM com uma única entidade (`leads`) e pipeline de três estágios: **Novo → Em contato → Fechado**. O foco é demonstrar o loop de desenvolvimento assistido por IA: descrever → IA gera → commit → deploy.
+
+Sem autenticação. Sem multi-tenant. Projetado para aprendizado, não para produção.
+
+---
+
+## Stack
+
+| Camada | Tecnologia |
+| --- | --- |
+| Framework | Next.js 14 (App Router, Server Components) |
+| Linguagem | TypeScript 5 — modo estrito |
+| UI | Tailwind CSS 3.4 |
+| Banco | Supabase (Postgres) |
+| Deploy | Vercel |
+| Gerenciador | npm |
+
+---
+
+## Funcionalidades atuais
+
+- **Listagem de leads** com busca em tempo real (nome, empresa, telefone, e-mail)
+- **Filtro por status** via pills clicáveis com contagem — Todos / Novo / Em contato / Fechado
+- **Ordenação** por qualquer coluna (clique no header)
+- **Cadastro e edição** de lead com máscara de telefone brasileiro
+- **Exclusão** com dialog de confirmação
+- **Banner de feedback** após criar, editar ou excluir
+- **Cards de resumo** com totais por status no topo da listagem
+
+---
+
+## Estrutura do projeto
+
+```text
+src/
+├── app/
+│   ├── leads/
+│   │   ├── page.tsx          # listagem + cards de resumo
+│   │   ├── error.tsx         # error boundary
+│   │   ├── new/page.tsx      # cadastro
+│   │   └── [id]/page.tsx     # detalhe + edição + exclusão
+│   ├── layout.tsx
+│   └── page.tsx              # redirect para /leads
+├── components/
+│   ├── LeadForm.tsx          # formulário compartilhado (criar/editar)
+│   ├── LeadTable.tsx         # tabela com filtros, busca e ordenação
+│   ├── StatusBadge.tsx       # badge colorido por status
+│   ├── SuccessBanner.tsx     # banner de feedback pós-ação
+│   ├── ConfirmDialog.tsx     # modal de confirmação para exclusão
+│   └── Navbar.tsx
+└── lib/
+    ├── actions.ts            # Server Actions (criar, editar, excluir)
+    ├── leads.ts              # queries Supabase (server-only)
+    ├── supabase.ts           # cliente Supabase singleton (server-only)
+    ├── types.ts              # tipos de domínio (Lead, LeadStatus)
+    ├── database.types.ts     # tipos do schema (mantido manualmente)
+    └── utils.ts              # utilitários (formatPhone)
+
+supabase/
+└── migrations/               # 5 migrations incrementais
+```
+
+---
+
+## Como rodar localmente
+
+### Pré-requisitos
+
+- Node.js 20+
+- Conta no [Supabase](https://supabase.com) com um projeto criado
+- Tabela `leads` criada via migrations (ver seção abaixo)
+
+### 1. Clone e instale
+
+```bash
+git clone https://github.com/camesati/mini-crm.git
+cd mini-crm
+npm install
+```
+
+### 2. Configure as variáveis de ambiente
+
+Crie `.env.local` na raiz:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://<seu-projeto>.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<sua-anon-key>
+
+# Opcional: service role key para bypassar RLS no servidor
+# SUPABASE_SECRET_ROLE=<sua-service-role-key>
+```
+
+As chaves estão em **Supabase → Project Settings → API**.
+
+### 3. Aplique as migrations
+
+No SQL Editor do Supabase, execute os arquivos em ordem:
+
+```text
+supabase/migrations/001_create_leads.sql
+supabase/migrations/002_simplify_status.sql
+supabase/migrations/003_portuguese_status.sql
+supabase/migrations/004_definitive_status.sql
+supabase/migrations/005_add_email.sql
+```
+
+### 4. Inicie o servidor
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abra [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Banco de dados e RLS
 
-## Learn More
+### Schema atual (`leads`)
 
-To learn more about Next.js, take a look at the following resources:
+| Coluna | Tipo | Notas |
+| --- | --- | --- |
+| `id` | uuid | PK, `gen_random_uuid()` |
+| `nome` | text | obrigatório |
+| `empresa` | text | obrigatório |
+| `contato` | text | telefone, nullable |
+| `email` | text | nullable |
+| `status` | text | `novo` \| `em_contato` \| `fechado` |
+| `notas` | text | nullable |
+| `created_at` | timestamptz | `now()` |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Migrations
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+5 arquivos em `supabase/migrations/`, aplicados manualmente via SQL Editor do Supabase. Não há CLI do Supabase configurado neste projeto.
 
-## Deploy on Vercel
+### RLS
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+A migration `001_create_leads.sql` **deixa RLS desabilitada** (comentário explícito: "desativado por padrão para prototipagem"). Se você habilitar RLS no Supabase Dashboard, adicione a `SUPABASE_SECRET_ROLE` no `.env.local` para que o servidor possa operar sem restrições de policy.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## Workflow de contribuição
+
+Este projeto segue **Conventional Commits** e fluxo com PR — nunca commitar direto em `main`.
+
+```bash
+# 1. Crie uma branch
+git checkout -b feat/descricao-curta
+
+# 2. Faça as alterações e valide
+npm run build
+npm run lint
+
+# 3. Commit
+git commit -m "feat(escopo): descrição em até 72 caracteres"
+
+# 4. Push e abra PR
+git push origin feat/descricao-curta
+```
+
+Consulte `.claude/rules/mini-crm-frontend.md` para convenções de componentes e `.claude/skills/preparar-pr/` para automatizar a abertura do PR com Claude Code.
+
+---
+
+## Próximos passos
+
+- [ ] Habilitar RLS e configurar policies por usuário autenticado
+- [ ] Adicionar autenticação (Supabase Auth)
+- [ ] Paginação na tabela (necessária acima de ~100 leads)
+- [ ] Gerar `database.types.ts` automaticamente via `supabase gen types`
+- [ ] Adicionar testes de integração (Playwright ou similar)
