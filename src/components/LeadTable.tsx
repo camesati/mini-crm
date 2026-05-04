@@ -46,6 +46,13 @@ export default function LeadTable({ leads }: { leads: Lead[] }) {
   const [asc, setAsc]             = useState(false);
   const [statusFilter, setStatus] = useState<StatusFilter>('all');
 
+  const counts = useMemo<Record<StatusFilter, number>>(() => ({
+    all:        leads.length,
+    novo:       leads.filter((l) => l.status === 'novo').length,
+    em_contato: leads.filter((l) => l.status === 'em_contato').length,
+    fechado:    leads.filter((l) => l.status === 'fechado').length,
+  }), [leads]);
+
   const filtered = useMemo(() => {
     const result = statusFilter === 'all' ? leads : leads.filter((l) => l.status === statusFilter);
     const q = search.toLowerCase();
@@ -96,6 +103,7 @@ export default function LeadTable({ leads }: { leads: Lead[] }) {
             }`}
           >
             {pill.label}
+            <span className="ml-1 opacity-60">({counts[pill.key]})</span>
           </button>
         ))}
       </div>
