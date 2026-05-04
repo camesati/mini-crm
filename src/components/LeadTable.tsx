@@ -2,9 +2,18 @@
 
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
-import { Lead } from '@/lib/types';
+import { Lead, LeadStatus } from '@/lib/types';
 import StatusBadge from './StatusBadge';
 import { formatPhone } from '@/lib/utils';
+
+type StatusFilter = 'all' | LeadStatus;
+
+const STATUS_PILLS: { key: StatusFilter; label: string; active: string; inactive: string }[] = [
+  { key: 'all',        label: 'Todos',      active: 'bg-gray-800 text-white',  inactive: 'bg-gray-100 text-gray-600 hover:bg-gray-200' },
+  { key: 'novo',       label: 'Novo',       active: 'bg-blue-600 text-white',  inactive: 'bg-blue-50 text-blue-700 hover:bg-blue-100' },
+  { key: 'em_contato', label: 'Em contato', active: 'bg-amber-500 text-white', inactive: 'bg-amber-50 text-amber-700 hover:bg-amber-100' },
+  { key: 'fechado',    label: 'Fechado',    active: 'bg-green-600 text-white', inactive: 'bg-green-50 text-green-700 hover:bg-green-100' },
+];
 
 type SortKey = keyof Pick<Lead, 'name' | 'company' | 'status' | 'createdAt'>;
 
@@ -32,18 +41,20 @@ function avatarClass(id: string) {
 }
 
 export default function LeadTable({ leads }: { leads: Lead[] }) {
-  const [search, setSearch]   = useState('');
-  const [sortKey, setSortKey] = useState<SortKey>('createdAt');
-  const [asc, setAsc]         = useState(false);
+  const [search, setSearch]       = useState('');
+  const [sortKey, setSortKey]     = useState<SortKey>('createdAt');
+  const [asc, setAsc]             = useState(false);
+  const [statusFilter, setStatus] = useState<StatusFilter>('all');
 
   const filtered = useMemo(() => {
+    const result = statusFilter === 'all' ? leads : leads.filter((l) => l.status === statusFilter);
     const q = search.toLowerCase();
-    if (!q) return leads;
-    return leads.filter((l) =>
+    if (!q) return result;
+    return result.filter((l) =>
       [l.name, l.company, l.phone, l.email]
         .some((v) => (v ?? '').toLowerCase().includes(q)),
     );
-  }, [leads, search]);
+  }, [leads, search, statusFilter]);
 
   const sorted = useMemo(
     () =>
@@ -73,6 +84,21 @@ export default function LeadTable({ leads }: { leads: Lead[] }) {
 
   return (
     <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+
+      {/* Pills de filtro por status */}
+      <div className="flex flex-wrap gap-1.5 border-b border-gray-100 px-4 py-3">
+        {STATUS_PILLS.map((pill) => (
+          <button
+            key={pill.key}
+            onClick={() => setStatus(pill.key)}
+            className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
+              statusFilter === pill.key ? pill.active : pill.inactive
+            }`}
+          >
+            {pill.label}
+          </button>
+        ))}
+      </div>
 
       {/* Barra de busca */}
       <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
@@ -113,7 +139,10 @@ export default function LeadTable({ leads }: { leads: Lead[] }) {
 
       {leads.length > 0 && filtered.length === 0 && (
         <div className="py-16 text-center text-sm text-gray-500">
-          Nenhum resultado para <strong>&ldquo;{search}&rdquo;</strong>
+          {search
+            ? <>Nenhum resultado para <strong>&ldquo;{search}&rdquo;</strong></>
+            : <>Nenhum lead com status <strong>{STATUS_PILLS.find((p) => p.key === statusFilter)?.label}</strong></>
+          }
         </div>
       )}
 
