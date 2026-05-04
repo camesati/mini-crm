@@ -37,3 +37,7 @@ next-env.d.ts
 
 # local data
 data/leads.json
+
+# claude code — arquivos locais nao versionados
+CLAUDE.local.md
+.claude/settings.local.json
