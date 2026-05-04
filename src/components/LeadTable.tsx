@@ -147,10 +147,52 @@ export default function LeadTable({ leads }: { leads: Lead[] }) {
 
       {leads.length > 0 && filtered.length === 0 && (
         <div className="py-16 text-center text-sm text-gray-500">
-          {search
-            ? <>Nenhum resultado para <strong>&ldquo;{search}&rdquo;</strong></>
-            : <>Nenhum lead com status <strong>{STATUS_PILLS.find((p) => p.key === statusFilter)?.label}</strong></>
-          }
+          {search && statusFilter !== 'all' ? (
+            <>
+              Nenhum resultado para <strong>&ldquo;{search}&rdquo;</strong> em{' '}
+              <strong>{STATUS_PILLS.find((p) => p.key === statusFilter)?.label}</strong>
+              <div className="mt-3 flex justify-center gap-3">
+                <button
+                  onClick={() => setSearch('')}
+                  className="text-indigo-600 underline hover:text-indigo-800"
+                >
+                  Limpar busca
+                </button>
+                <span className="text-gray-300">·</span>
+                <button
+                  onClick={() => setStatus('all')}
+                  className="text-indigo-600 underline hover:text-indigo-800"
+                >
+                  Ver todos os status
+                </button>
+              </div>
+            </>
+          ) : search ? (
+            <>
+              Nenhum resultado para <strong>&ldquo;{search}&rdquo;</strong>
+              <div className="mt-3">
+                <button
+                  onClick={() => setSearch('')}
+                  className="text-indigo-600 underline hover:text-indigo-800"
+                >
+                  Limpar busca
+                </button>
+              </div>
+            </>
+          ) : (
+            <>
+              Nenhum lead com status{' '}
+              <strong>{STATUS_PILLS.find((p) => p.key === statusFilter)?.label}</strong>
+              <div className="mt-3">
+                <button
+                  onClick={() => setStatus('all')}
+                  className="text-indigo-600 underline hover:text-indigo-800"
+                >
+                  Ver todos
+                </button>
+              </div>
+            </>
+          )}
         </div>
       )}
 

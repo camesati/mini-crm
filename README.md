@@ -30,6 +30,7 @@ Sem autenticação. Sem multi-tenant. Projetado para aprendizado, não para prod
 
 - **Listagem de leads** com busca em tempo real (nome, empresa, telefone, e-mail)
 - **Filtro por status** via pills clicáveis com contagem — Todos / Novo / Em contato / Fechado
+- **Estado vazio com ação** — quando a busca ou o filtro não retorna resultados, exibe mensagem contextual com botão para limpar busca ou voltar para "Todos"
 - **Ordenação** por qualquer coluna (clique no header)
 - **Cadastro e edição** de lead com máscara de telefone brasileiro
 - **Exclusão** com dialog de confirmação
@@ -111,6 +112,7 @@ supabase/migrations/002_simplify_status.sql
 supabase/migrations/003_portuguese_status.sql
 supabase/migrations/004_definitive_status.sql
 supabase/migrations/005_add_email.sql
+supabase/migrations/006_enable_rls.sql
 ```
 
 ### 4. Inicie o servidor
@@ -140,11 +142,15 @@ Abra [http://localhost:3000](http://localhost:3000).
 
 ### Migrations
 
-5 arquivos em `supabase/migrations/`, aplicados manualmente via SQL Editor do Supabase. Não há CLI do Supabase configurado neste projeto.
+6 arquivos em `supabase/migrations/`, aplicados manualmente via SQL Editor do Supabase. Não há CLI do Supabase configurado neste projeto.
 
 ### RLS
 
-A migration `001_create_leads.sql` **deixa RLS desabilitada** (comentário explícito: "desativado por padrão para prototipagem"). Se você habilitar RLS no Supabase Dashboard, adicione a `SUPABASE_SECRET_ROLE` no `.env.local` para que o servidor possa operar sem restrições de policy.
+RLS está **habilitada** desde a migration `006_enable_rls.sql`. As policies atuais são permissivas (`using (true)`) para o role `anon`, preservando o comportamento do projeto enquanto não há autenticação implementada.
+
+O servidor usa a `SUPABASE_SECRET_ROLE` (service role key) quando disponível, que bypassa RLS automaticamente. Se essa variável não estiver configurada no Vercel, o app opera via anon key e as policies se aplicam normalmente — o comportamento atual é idêntico nos dois casos porque as policies permitem tudo.
+
+> **Próximo passo de segurança:** quando autenticação for adicionada, substituir `to anon using (true)` por `to authenticated using (auth.uid() is not null)` em cada policy.
 
 ---
 
