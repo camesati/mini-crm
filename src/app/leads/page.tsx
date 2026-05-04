@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { readLeads } from '@/lib/leads';
 import LeadTable from '@/components/LeadTable';
+import SuccessBanner from '@/components/SuccessBanner';
 
 export const dynamic = 'force-dynamic';
 
@@ -21,7 +22,11 @@ function StatCard({
   );
 }
 
-export default async function LeadsPage() {
+export default async function LeadsPage({
+  searchParams,
+}: {
+  searchParams: { success?: string };
+}) {
   const leads = await readLeads();
 
   const total     = leads.length;
@@ -31,6 +36,8 @@ export default async function LeadsPage() {
 
   return (
     <div>
+      <SuccessBanner message={searchParams.success} />
+
       {/* Cabeçalho */}
       <div className="mb-8 flex items-start justify-between">
         <div>

@@ -5,11 +5,12 @@ import { updateLeadAction, deleteLeadAction } from '@/lib/actions';
 import LeadForm from '@/components/LeadForm';
 import StatusBadge from '@/components/StatusBadge';
 import ConfirmDialog from '@/components/ConfirmDialog';
+import SuccessBanner from '@/components/SuccessBanner';
 import { formatPhone } from '@/lib/utils';
 
 interface Props {
   params: { id: string };
-  searchParams: { edit?: string };
+  searchParams: { edit?: string; success?: string };
 }
 
 export default async function LeadDetailPage({ params, searchParams }: Props) {
@@ -22,6 +23,8 @@ export default async function LeadDetailPage({ params, searchParams }: Props) {
 
   return (
     <div className="mx-auto max-w-2xl">
+      <SuccessBanner message={searchParams.success} />
+
       <div className="mb-6">
         <Link href="/leads" className="text-sm text-indigo-600 hover:text-indigo-800">
           ← Voltar para Leads

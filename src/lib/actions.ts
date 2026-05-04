@@ -26,7 +26,7 @@ export async function createLeadAction(formData: FormData): Promise<ActionResult
     return { error: (e as Error).message };
   }
   revalidatePath('/leads');
-  redirect('/leads');
+  redirect('/leads?success=created');
 }
 
 export async function updateLeadAction(id: string, formData: FormData): Promise<ActionResult> {
@@ -38,7 +38,7 @@ export async function updateLeadAction(id: string, formData: FormData): Promise<
   }
   revalidatePath('/leads');
   revalidatePath(`/leads/${id}`);
-  redirect(`/leads/${id}`);
+  redirect(`/leads/${id}?success=updated`);
 }
 
 export async function deleteLeadAction(id: string): Promise<ActionResult> {
@@ -48,5 +48,5 @@ export async function deleteLeadAction(id: string): Promise<ActionResult> {
     return { error: (e as Error).message };
   }
   revalidatePath('/leads');
-  redirect('/leads');
+  redirect('/leads?success=deleted');
 }
